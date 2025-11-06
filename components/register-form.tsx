@@ -74,44 +74,44 @@ export function RegisterForm() {
               <div className="md:flex">
                 {/* Full Name */}
                 <div className="md:w-1/2">
-                  <label className="block text-sm font-medium text-foreground mb-2">First Name *</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">First Name *</label>
                   <input
                     type="text"
                     required
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                    className="w-full bg-white px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
                     placeholder="John"
                   />
                 </div>
                 <div className="md:w-1/2 md:ms-8">
-                  <label className="block text-sm font-medium text-foreground mb-2">Last Name *</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Last Name *</label>
                   <input
                     type="text"
                     required
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                    className="w-full bg-white px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
                     placeholder="Doe"
                   />
                 </div>
               </div>
 
               <div className="md:flex">
-                
+
                 {/* Email */}
                 <div className="md:w-1/2">
-                  <label className="block text-sm font-medium text-foreground mb-2">Email Address *</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Email Address *</label>
                   <input
                     type="email"
                     required
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                    className="w-full bg-white px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
                     placeholder="john@example.com"
                   />
                 </div>
                 {/* Phone */}
                 <div className="md:w-1/2 md:ms-8">
-                  <label className="block text-sm font-medium text-foreground mb-2">Phone Number *</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Phone Number *</label>
                   <input
                     type="tel"
                     required
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                    className="w-full bg-white px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
                     placeholder="+254 712 345 678"
                   />
                 </div>
@@ -119,48 +119,48 @@ export function RegisterForm() {
               <div className="md:flex">
                 {/* Date of birth */}
                 <div className="md:w-1/2">
-                  <label className="block text-sm font-medium text-foreground mb-2">Date of Birth *</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Date of Birth *</label>
                   <input
                     type="date"
                     required
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                    className="w-full bg-white px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
                     placeholder="+254 712 345 678"
                   />
                 </div>
                 {/* National ID */}
                 <div className="md:w-1/2 md:ms-8">
-                  <label className="block text-sm font-medium text-foreground mb-2">Sex *</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Sex *</label>
                   <select
                     required
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                    className="w-full bg-white px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
                   >
-                    <option value="">Select Gender</option>
-                    <option value="dar-es-salaam">Male</option>
-                    <option value="arusha">Female</option>
-                    <option value="arusha">I don't prefer </option>
+                    <option className="text-gray-400" value="">Select Gender</option>
+                    <option className="text-gray-400" value="dar-es-salaam">Male</option>
+                    <option className="text-gray-400" value="arusha">Female</option>
+                    <option className="text-gray-400" value="arusha">I don't prefer </option>
                   </select>
                 </div>
               </div>
               <div className="md:flex">
                 {/* Identification Document Type */}
                 <div className="md:w-1/2">
-                  <label className="block text-sm font-medium text-foreground mb-2">Document Type *</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Document Type *</label>
                   <select
                     required
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                    className="w-full bg-white px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
                   >
-                    <option value="">Select Document Type</option>
-                    <option value="passport">Passport</option>
-                    <option value="National ID">National ID</option>
+                    <option className="text-gray-400" value="">Select Document Type</option>
+                    <option className="text-gray-400" value="passport">Passport</option>
+                    <option className="text-gray-400" value="National ID">National ID</option>
                   </select>
                 </div>
                 {/* National ID */}
                 <div className="md:w-1/2 md:ms-8">
-                  <label className="block text-sm font-medium text-foreground mb-2">Identification Number *</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Identification Number *</label>
                   <input
                     type="number"
                     required
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                    className="w-full px-4 bg-white py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
                     placeholder="01234567"
                   />
                 </div>
@@ -169,69 +169,69 @@ export function RegisterForm() {
               <div className="md:flex">
                 {/* County */}
                 <div className="md:w-1/2">
-                  <label className="block text-sm font-medium text-foreground mb-2">County *</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">County *</label>
                   <select
                     required
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                    className="w-full bg-white px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
                   >
-                    <option value="">Select County</option>
-                    <option value="dar-es-salaam">Dar es Salaam</option>
-                    <option value="arusha">Arusha</option>
-                    <option value="mbeya">Mbeya</option>
-                    <option value="dodoma">Dodoma</option>
-                    <option value="mwanza">Mwanza</option>
-                    <option value="other">Other</option>
+                    <option className="text-gray-400" value="">Select County</option>
+                    <option className="text-gray-400" value="dar-es-salaam">Dar es Salaam</option>
+                    <option className="text-gray-400" value="arusha">Arusha</option>
+                    <option className="text-gray-400" value="mbeya">Mbeya</option>
+                    <option className="text-gray-400" value="dodoma">Dodoma</option>
+                    <option className="text-gray-400" value="mwanza">Mwanza</option>
+                    <option className="text-gray-400" value="other">Other</option>
                   </select>
                 </div>
                 <div className="md:w-1/2 md:ms-8">
-                  <label className="block text-sm font-medium text-foreground mb-2">Consituency *</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Consituency *</label>
                   <select
                     required
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                    className="w-full bg-white px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
                   >
-                    <option value="">Select Consituency</option>
-                    <option value="dar-es-salaam">Dar es Salaam</option>
-                    <option value="arusha">Arusha</option>
-                    <option value="mbeya">Mbeya</option>
-                    <option value="dodoma">Dodoma</option>
-                    <option value="mwanza">Mwanza</option>
-                    <option value="other">Other</option>
+                    <option className="text-gray-400" value="">Select Consituency</option>
+                    <option className="text-gray-400" value="dar-es-salaam">Dar es Salaam</option>
+                    <option className="text-gray-400" value="arusha">Arusha</option>
+                    <option className="text-gray-400" value="mbeya">Mbeya</option>
+                    <option className="text-gray-400" value="dodoma">Dodoma</option>
+                    <option className="text-gray-400" value="mwanza">Mwanza</option>
+                    <option className="text-gray-400" value="other">Other</option>
                   </select>
                 </div>
               </div>
               <div className="md:flex">
                 {/* County */}
                 <div className="md:w-1/2">
-                  <label className="block text-sm font-medium text-foreground mb-2">Ward *</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Ward *</label>
                   <select
                     required
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                    className="w-full bg-white px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
                   >
-                    <option value="">Select Ward</option>
-                    <option value="dar-es-salaam">Dar es Salaam</option>
-                    <option value="arusha">Arusha</option>
-                    <option value="mbeya">Mbeya</option>
-                    <option value="dodoma">Dodoma</option>
-                    <option value="mwanza">Mwanza</option>
-                    <option value="other">Other</option>
+                    <option className="text-gray-400" value="">Select Ward</option>
+                    <option className="text-gray-400" value="dar-es-salaam">Dar es Salaam</option>
+                    <option className="text-gray-400" value="arusha">Arusha</option>
+                    <option className="text-gray-400" value="mbeya">Mbeya</option>
+                    <option className="text-gray-400" value="dodoma">Dodoma</option>
+                    <option className="text-gray-400" value="mwanza">Mwanza</option>
+                    <option className="text-gray-400" value="other">Other</option>
                   </select>
                 </div>
                 <div className="md:w-1/2 md:ms-8">
-                  <label className="block text-sm font-medium text-foreground mb-2">Area of Interest *</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Area of Interest *</label>
                   <select
                     required
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                    className="w-full bg-white px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
                   >
-                    <option value="">Select Consituency</option>
-                    <option value="politics">Politics</option>
-                    <option value="community work">Community Work</option>
-                    <option value="youth engagement">Youth Engagement</option>
-                    <option value="policy development">Policy Development</option>
+                    <option className="text-gray-400" value="">Select Consituency</option>
+                    <option className="text-gray-400" value="politics">Politics</option>
+                    <option className="text-gray-400" value="community work">Community Work</option>
+                    <option className="text-gray-400" value="youth engagement">Youth Engagement</option>
+                    <option className="text-gray-400" value="policy development">Policy Development</option>
                   </select>
                 </div>
               </div>
 
-            
+
 
 
 
