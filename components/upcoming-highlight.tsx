@@ -15,7 +15,7 @@ export function UpcomingHighlight() {
   const preview = fullText.trim().split(/\s+/).slice(0, 20).join(" ")
 
   return (
-    <section className="w-full py-16 md:py-24 bg-muted">
+    <section className="w-full py-8 md:py-12 bg-muted">
       <div className="max-w-6xl mx-auto px-4">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">Featured Event</h2>
 

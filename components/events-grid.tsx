@@ -82,7 +82,7 @@ export function EventsGrid() {
   const categories = ["All", "Rally", "Workshop", "Dialogue", "Campaign", "Gala"]
 
   return (
-    <section className="w-full py-16 md:py-24 bg-background">
+    <section className="w-full py-8 md:py-12 bg-background">
       <div className="max-w-6xl mx-auto px-4">
         <div className="mb-12">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8 text-balance">All Events</h2>
