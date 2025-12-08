@@ -3,7 +3,7 @@ import { Mail, Bell } from "lucide-react"
 
 export function NewsletterCTA() {
   return (
-    <section className="w-full py-16 md:py-24 bg-primary">
+    <section className="w-full py-8 md:py-12 bg-primary">
       <div className="max-w-4xl mx-auto px-4 text-center">
         <div className="flex justify-center mb-6">
           <div className="bg-white/10 p-4 rounded-lg">

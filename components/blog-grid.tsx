@@ -32,13 +32,13 @@ export function BlogGrid() {
     const fetchData = async () => {
       try {
         // Fetch Articles
-        const articleRes = await api.get("/blog/all")
+        const articleRes = await api.get("api/blog/all")
         if (articleRes.data.statusCode === 200) {
           setArticles(articleRes.data.data)
         }
 
         // Fetch Categories
-        const categoryRes = await api.get("/blog/get/all/blogCategory")
+        const categoryRes = await api.get("api/blog/get/all/blogCategory")
         if (categoryRes.data.statusCode === 201) {
         setCategories(prev => [...prev, ...categoryRes.data?.data.map((cat: { category: string }) => cat.category) ]);
         console.log('catergory data1', categoryRes.data.data);
@@ -64,7 +64,7 @@ export function BlogGrid() {
      try {
        setArticles([]);
        setLoading(true);
-       const  response  =  await api.get(`/blog/get/all/blog/by/category?category=${category}`);
+       const  response  =  await api.get(`api/blog/get/all/blog/by/category?category=${category}`);
        setArticles(response.data.data);
        setLoading(false);
      } catch (error) {
@@ -73,7 +73,7 @@ export function BlogGrid() {
   }
 
   return (
-    <section className="w-full py-16 md:py-24 bg-background">
+    <section className="w-full py-8 md:py-12 bg-background">
       <Toaster position="top-right"/>
       <div className="max-w-6xl mx-auto px-4">
         <div className="mb-12">

@@ -4,7 +4,7 @@ import { Target, Eye } from "lucide-react"
 
 export function MissionVision() {
   return (
-    <section className="w-full py-16 md:py-24 bg-background">
+    <section className="w-full py-8 md:py-12 bg-background">
       <div className="max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Mission */}
