@@ -13,6 +13,7 @@ import { Spinner } from "./ui/spinner"
 import api from "@/lib/axios";
 import { Eye, EyeOff } from "lucide-react"
 import toast, { Toaster } from 'react-hot-toast';
+import { Card, CardContent } from "./ui/card"
 
 export function LoginForm({
   className,
@@ -55,62 +56,86 @@ export function LoginForm({
   return (
     <>
       <Toaster position="top-right" />
-      <form
-        onSubmit={handleLogin}
-        className={cn("flex flex-col gap-6", className)}
-        {...props}
-      >
-        <FieldGroup>
-          <div className="flex flex-col items-center gap-1 text-center">
-            <h1 className="text-2xl font-bold">Login to your account</h1>
-            <p className="text-muted-foreground text-sm text-balance">
-              Enter your username below to login to your account
-            </p>
-          </div>
+      <Card>
+        <CardContent>
+          <form
+            onSubmit={handleLogin}
+            className={cn("flex flex-col space-y-6", className)}
+            {...props}
+          >
 
-          <Field>
-            <FieldLabel htmlFor="username">Username</FieldLabel>
-            <Input
-              id="username"
-              name="username"
-              type="text"
-              placeholder="member001"
-              required
-            />
-          </Field>
-
-          <Field>
-            <div className="flex items-center justify-between">
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <a href="#" className="text-sm underline-offset-4 hover:underline">
-                Forgot your password?
-              </a>
-            </div>
-            <div className="relative">
-              <Input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                required
-                className="pr-10"
+            <div className="text-center  space-y-3">
+              <img
+                src="/SFU-LOGO.png"
+                alt="Shikana Frontliners for Unity Party"
+                className="h-24 mx-auto w-24 object-contain align-center"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-2 flex items-center text-sm text-muted-foreground hover:text-foreground"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </Field>
+              <h1 className="text-2xl font-bold tracking-tight">
+                Welcome to SFU Party
+              </h1>
 
-          <Field>
-            <Button type="submit" disabled={isLoading}>
+              <p className="text-sm text-muted-foreground">
+                Enter your username and password to continue
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Username *
+              </label>
+              <input
+                type="text"
+                name="username"
+                required
+                className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-secondary"
+                placeholder="john.doe"
+              />
+            </div>
+
+
+            {/* Password */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-medium text-foreground">
+                  Password *
+                </label>
+
+                <a href="#" className="text-sm underline-offset-4 hover:underline">
+                  Forgot Password?
+                </a>
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  required
+                  className="w-full px-4 py-2 border border-border rounded-lg pr-10 focus:outline-none focus:border-secondary"
+                  placeholder="••••••••"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+
+            {/* Submit */}
+            <Button
+              type="submit"
+              className="w-full bg-secondary text-white py-3 rounded-lg font-bold hover:bg-secondary/90 transition-colors h-10 mt-3"
+              disabled={isLoading}
+            >
               {isLoading ? <Spinner /> : "Login"}
             </Button>
-          </Field>
-        </FieldGroup>
-      </form>
+          </form>
+        </CardContent>
+      </Card>
     </>
   );
 }
