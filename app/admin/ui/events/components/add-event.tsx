@@ -1,14 +1,26 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Upload, FileText, MapPin, Calendar, Clock, Tag, ImageIcon } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Upload,
+  FileText,
+  MapPin,
+  Tag,
+  ImageIcon,
+} from "lucide-react"
 import api from "@/lib/axios"
 import { toast } from "react-hot-toast"
 
@@ -26,12 +38,30 @@ export default function AddNewEvent({ onSuccess }: AddNewEventProps) {
     location: "",
     description: "",
     image: "",
+    isMainEvent: false,
+    isPaid: false,
+    amount: "",
   }
 
   const [formData, setFormData] = useState(initialFormState)
-  const [fileName, setFileName] = useState<string>("")
+  const [fileName, setFileName] = useState("")
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const isFormValid =
+  Boolean(
+    formData.event_type &&
+    formData.title &&
+    formData.event_date &&
+    formData.from_time &&
+    formData.to_time &&
+    formData.location
+  ) &&
+  (!formData.isPaid || Boolean(formData.amount))
+
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target
     setFormData({ ...formData, [name]: value })
   }
@@ -65,8 +95,22 @@ export default function AddNewEvent({ onSuccess }: AddNewEventProps) {
       return
     }
 
+    if (formData.isPaid && !formData.amount) {
+      toast.error("Please enter the amount for a paid event")
+      return
+    }
+
+    const payload = {
+      ...formData,
+      paid: formData.isPaid,
+      amount: formData.isPaid ? Number(formData.amount) : 0,
+    }
+
     try {
-      const response = await api.post("/api/events/add", formData)
+      setSubmitting(true)
+
+      const response = await api.post("/api/events/add", payload)
+
       if (response.data?.statusCode === 200) {
         toast.success(response.data.message)
         setFormData(initialFormState)
@@ -78,28 +122,30 @@ export default function AddNewEvent({ onSuccess }: AddNewEventProps) {
     } catch (error) {
       console.error(error)
       toast.error("Something went wrong while creating the event")
+    } finally {
+      setSubmitting(false)
     }
   }
 
   return (
     <div className="w-full px-1">
       <div className="pb-4 mb-6 border-b">
-        <h2 className="text-2xl font-semibold text-foreground">Create New Event</h2>
+        <h2 className="text-2xl font-semibold">Create New Event</h2>
         <p className="text-sm text-muted-foreground mt-1">
           Fill in the details below to add a new event to the calendar
         </p>
       </div>
 
       <div className="space-y-6 pb-4">
-        {/* Event Type and Title Row */}
+        {/* Event Type & Title */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="event_type" className="flex items-center gap-2 text-sm font-medium">
-              <Tag className="h-4 w-4 text-muted-foreground" />
+            <Label className="flex items-center gap-2">
+              <Tag className="h-4 w-4" />
               Event Type
             </Label>
             <Select value={formData.event_type} onValueChange={handleSelectChange}>
-              <SelectTrigger className="w-full h-10">
+              <SelectTrigger>
                 <SelectValue placeholder="Select event type" />
               </SelectTrigger>
               <SelectContent>
@@ -112,103 +158,109 @@ export default function AddNewEvent({ onSuccess }: AddNewEventProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="title" className="flex items-center gap-2 text-sm font-medium">
-              <FileText className="h-4 w-4 text-muted-foreground" />
+            <Label className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
               Event Title
             </Label>
             <Input
-              id="title"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="Enter event title"
-              className="h-10"
             />
           </div>
         </div>
 
-        {/* Date and Time Section */}
+        {/* Date & Time */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="event_date" className="flex items-center gap-2 text-sm font-medium">
-              {/* <Calendar className="h-4 w-4 text-muted-foreground" /> */}
-              Event Date
-            </Label>
-            <Input
-              id="event_date"
-              name="event_date"
-              type="date"
-              value={formData.event_date}
-              onChange={handleChange}
-              className="h-10"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="from_time" className="flex items-center gap-2 text-sm font-medium">
-              {/* <Clock className="h-4 w-4 text-muted-foreground" /> */}
-              Start Time
-            </Label>
-            <Input
-              id="from_time"
-              name="from_time"
-              type="time"
-              value={formData.from_time}
-              onChange={handleChange}
-              className="h-10"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="to_time" className="flex items-center gap-2 text-sm font-medium">
-              {/* <Clock className="h-4 w-4 text-muted-foreground" /> */}
-              End Time
-            </Label>
-            <Input
-              id="to_time"
-              name="to_time"
-              type="time"
-              value={formData.to_time}
-              onChange={handleChange}
-              className="h-10"
-            />
-          </div>
+          <Input type="date" name="event_date" value={formData.event_date} onChange={handleChange} />
+          <Input type="time" name="from_time" value={formData.from_time} onChange={handleChange} />
+          <Input type="time" name="to_time" value={formData.to_time} onChange={handleChange} />
         </div>
 
         {/* Location */}
         <div className="space-y-2">
-          <Label htmlFor="location" className="flex items-center gap-2 text-sm font-medium">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
+          <Label className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
             Location
           </Label>
-          <Input
-            id="location"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="Enter event location or venue"
-            className="h-10"
-          />
+          <Input name="location" value={formData.location} onChange={handleChange} />
         </div>
 
         {/* Description */}
         <div className="space-y-2">
-          <Label htmlFor="description" className="flex items-center gap-2 text-sm font-medium">
-            <FileText className="h-4 w-4 text-muted-foreground" />
-            Description
-          </Label>
+          <Label>Description</Label>
           <Textarea
-            id="description"
             name="description"
             value={formData.description}
             onChange={handleChange}
-            placeholder="Provide details about the event..."
-            className="min-h-[150px] resize-y"
+            className="min-h-[150px]"
           />
-          <p className="text-xs text-muted-foreground">{formData.description.length} characters</p>
+
+          {/* ✅ CHECKBOXES (AFTER DESCRIPTION) */}
+          <div className="flex flex-wrap gap-6 pt-2">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={formData.isMainEvent}
+                onCheckedChange={(checked: any) =>
+                  setFormData({ ...formData, isMainEvent: !!checked })
+                }
+              />
+              <Label>Main Event</Label>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={formData.isPaid}
+                onCheckedChange={(checked: any) =>
+                  setFormData({
+                    ...formData,
+                    isPaid: !!checked,
+                    amount: "",
+                  })
+                }
+              />
+              <Label>Paid Event</Label>
+            </div>
+          </div>
+
+          {/* 💰 Amount (only if paid) */}
+          {formData.isPaid && (
+            <div className="max-w-xs pt-2">
+              <Label>Amount</Label>
+              <Input
+                type="number"
+                name="amount"
+                value={formData.amount}
+                onChange={handleChange}
+                placeholder="Enter amount"
+              />
+            </div>
+          )}
         </div>
 
-        {/* Image Upload Section */}
+        {/* Image Upload (unchanged) */}
+        {/* <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <ImageIcon className="h-4 w-4" />
+            Event Image
+          </Label>
+
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+            id="image"
+          />
+
+          <Label
+            htmlFor="image"
+            className="flex items-center justify-center h-24 border-2 border-dashed rounded-lg cursor-pointer"
+          >
+            {fileName || "Click to upload event image"}
+          </Label>
+        </div> */}
+
         <div className="space-y-2">
           <Label htmlFor="image" className="flex items-center gap-2 text-sm font-medium">
             <ImageIcon className="h-4 w-4 text-muted-foreground" />
@@ -249,6 +301,7 @@ export default function AddNewEvent({ onSuccess }: AddNewEventProps) {
           )}
         </div>
 
+        {/* Actions */}
         <div className="pt-4 border-t flex justify-end gap-3">
           <Button
             variant="outline"
@@ -256,11 +309,16 @@ export default function AddNewEvent({ onSuccess }: AddNewEventProps) {
               setFormData(initialFormState)
               setFileName("")
             }}
+            disabled={submitting}
           >
             Clear Form
           </Button>
-          <Button onClick={handleSubmit} className="min-w-[120px]">
-            Create Event
+
+          <Button
+            onClick={handleSubmit}
+            disabled={!isFormValid || submitting}
+          >
+            {submitting ? "Creating..." : "Create Event"}
           </Button>
         </div>
       </div>
