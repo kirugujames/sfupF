@@ -2,27 +2,28 @@
 
 import * as React from "react"
 import {
-    IconDashboard,
-    IconUsers, 
-    IconUserCog,
-    IconCalendar, 
-    IconFileText, 
-    IconBriefcase, 
-    IconShoppingBag,
-    IconFolderFilled, 
+  IconDashboard,
+  IconUsers,
+  IconUserCog,
+  IconCalendar,
+  IconFileText,
+  IconBriefcase,
+  IconShoppingBag,
+  IconFolderFilled,
 } from "@tabler/icons-react"
 
 import {
-    LayoutDashboard,
-    Users,
-    UserCog,
-    Calendar,
-    FileText,
-    Briefcase,
-    ShoppingBag,
-    ScrollText,
-    FolderOpen,
+  LayoutDashboard,
+  Users,
+  UserCog,
+  Calendar,
+  FileText,
+  Briefcase,
+  ShoppingBag,
+  ScrollText,
+  FolderOpen,
 } from "lucide-react"
+import { Roles } from "@/lib/roles"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -77,6 +78,46 @@ export function AppSidebar({
   variant,
   ...props
 }: AppSidebarProps) {
+  const [role, setRole] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const userData = localStorage.getItem("user")
+      if (userData) {
+        try {
+          const parsed = JSON.parse(userData)
+          setRole(parsed?.role_name || null)
+        } catch (e) {
+          console.error("Error parsing user data from localStorage", e)
+        }
+      }
+    }
+  }, [])
+
+  const filteredNavItems = React.useMemo(() => {
+    if (!role) return navItems
+
+    const r = role.toLowerCase()
+    const superAdminRole = Roles.SUPER_ADMIN.toLowerCase()
+    const adminRole = Roles.ADMIN.toLowerCase()
+    const contentAdminRole = Roles.CONTENT_ADMIN.toLowerCase()
+
+    if (r === superAdminRole) {
+      return navItems
+    }
+
+    if (r === adminRole) {
+      return navItems.filter(item => item.title !== "Audit Trail")
+    }
+
+    if (r === contentAdminRole) {
+      const allowed = ["Events", "Blogs", "Jobs"]
+      return navItems.filter(item => allowed.includes(item.title))
+    }
+
+    return navItems
+  }, [navItems, role])
+
   const resolveIcons = <T extends { icon: keyof typeof iconMap }>(items: T[]) =>
     items.map((item) => ({
       ...item,
@@ -119,7 +160,7 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        <NavMain items={resolveIcons(navItems)} />
+        <NavMain items={resolveIcons(filteredNavItems)} />
         {/* {documents.length == 0 ? null :
           <NavDocuments items={resolveIcons(documents)} />
         } */}
