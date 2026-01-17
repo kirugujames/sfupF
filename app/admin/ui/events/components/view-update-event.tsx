@@ -19,6 +19,18 @@ import { ArrowUpDown, ChevronLeft, ChevronRight, Search, MoreHorizontal, Eye, Pe
 import api from "@/lib/axios"
 import AddNewEvent from "./add-event"
 import { toast } from "react-hot-toast"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { cn } from "@/lib/utils"
+import { buttonVariants } from "@/components/ui/button"
 
 type Event = {
   id: number
@@ -49,7 +61,9 @@ export function EventsTable() {
   const [openAddEvent, setOpenAddEvent] = useState(false)
   const [openViewEvent, setOpenViewEvent] = useState(false)
   const [openEditEvent, setOpenEditEvent] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+  const [eventToDelete, setEventToDelete] = useState<Event | null>(null)
 
   const fetchEvents = async () => {
     try {
@@ -144,19 +158,27 @@ export function EventsTable() {
     setOpenEditEvent(true)
   }
 
-  const handleDelete = async (event: Event) => {
-    if (window.confirm(`Are you sure you want to delete "${event.title}"?`)) {
-      try {
-        const response = await api.delete(`/api/events/delete/${event.id}`)
-        if (response.data?.statusCode === 200) {
-          toast.success(response.data.message)
-          fetchEvents()
-        } else {
-          toast.error(response.data.message || "Delete failed")
-        }
-      } catch (err) {
-        toast.error("An error occurred while deleting")
+  const handleDelete = (event: Event) => {
+    setEventToDelete(event)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!eventToDelete) return
+    try {
+      const response = await api.delete(`/api/events/delete/${eventToDelete.id}`)
+      if (response.data?.statusCode === 200 || response.data?.success || response.data?.message?.includes("successfully")) {
+        toast.success(response.data.message || "Event deleted successfully")
+        fetchEvents()
+      } else {
+        toast.error(response.data.message || "Delete failed")
       }
+    } catch (err) {
+      console.error("Delete failed", err)
+      toast.error("An error occurred while deleting")
+    } finally {
+      setIsDeleteDialogOpen(false)
+      setEventToDelete(null)
     }
   }
 
@@ -413,6 +435,27 @@ export function EventsTable() {
           )}
         </DialogContent>
       </Dialog>
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the event
+              "{eventToDelete?.title}" and remove the data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setEventToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className={cn(buttonVariants({ variant: "destructive" }))}
+            >
+              Delete Event
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -9,7 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -35,6 +36,16 @@ import {
 import api from "@/lib/axios"
 import { toast } from "react-hot-toast"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import AddJob from "./add-job"
 
 type Job = {
@@ -60,12 +71,14 @@ export function JobsTable() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
+  const [jobToDelete, setJobToDelete] = useState<Job | null>(null)
 
   const fetchJobs = async () => {
     try {
       setLoading(true)
-      const res = await api.get("/api/jobs/get-all")
+      const res = await api.get("/api/jobs/all")
       const backendJobs = Array.isArray(res.data)
         ? res.data
         : Array.isArray(res.data?.data)
@@ -160,19 +173,27 @@ export function JobsTable() {
     setIsEditDialogOpen(true)
   }
 
-  const handleDelete = async (job: Job) => {
-    if (window.confirm(`Are you sure you want to delete "${job.title}"?`)) {
-      try {
-        const response = await api.delete(`/api/jobs/delete/${job.id}`)
-        if (response.data?.statusCode === 200) {
-          toast.success(response.data.message)
-          fetchJobs()
-        } else {
-          toast.error(response.data.message || "Delete failed")
-        }
-      } catch (err) {
-        toast.error("An error occurred while deleting")
+  const handleDelete = (job: Job) => {
+    setJobToDelete(job)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!jobToDelete) return
+
+    try {
+      const response = await api.delete(`/api/jobs/delete/${jobToDelete.id}`)
+      if (response.data?.statusCode === 200 || response.data?.message === "Job deleted successfully") {
+        toast.success(response.data.message || "Job deleted successfully")
+        fetchJobs()
+      } else {
+        toast.error(response.data.message || "Delete failed")
       }
+    } catch (err) {
+      toast.error("An error occurred while deleting")
+    } finally {
+      setIsDeleteDialogOpen(false)
+      setJobToDelete(null)
     }
   }
 
@@ -361,11 +382,11 @@ export function JobsTable() {
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
                           onClick={() => handleDelete(job)}
+                          className="flex items-center gap-2 text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          <Trash2 className="h-4 w-4" />
+                          <span>Delete</span>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -409,6 +430,27 @@ export function JobsTable() {
           </div>
         </div>
       )}
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the job
+              listing for "{jobToDelete?.title}" and remove the data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setJobToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className={cn(buttonVariants({ variant: "destructive" }))}
+            >
+              Delete Job
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

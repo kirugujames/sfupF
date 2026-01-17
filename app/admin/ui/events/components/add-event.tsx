@@ -123,9 +123,11 @@ export default function AddNewEvent({ onSuccess, initialData, mode = "add" }: Ad
       return
     }
 
-    const payload = {
-      ...formData,
-      amount: formData.paid ? Number(formData.amount) : 0,
+    const { paid, ...rest } = formData
+    const payload: any = {
+      ...rest,
+      isPaid: !!paid,
+      amount: paid ? Number(formData.amount) : 0,
     }
 
     try {
@@ -133,12 +135,17 @@ export default function AddNewEvent({ onSuccess, initialData, mode = "add" }: Ad
 
       let response;
       if (isEdit) {
-        response = await api.put(`/api/events/update/${initialData.id}`, payload)
+        payload.id = initialData.id
+        response = await api.patch("/api/events/update", payload)
       } else {
         response = await api.post("/api/events/add", payload)
       }
 
-      if (response.data?.statusCode === 200 || response.data?.statusCode === 201) {
+      if (
+        response.data?.message === "Event updated successfully" ||
+        response.data?.statusCode === 200 ||
+        response.data?.statusCode === 201
+      ) {
         toast.success(response.data.message || (isEdit ? "Event updated successfully" : "Event created successfully"))
         if (!isEdit) {
           setFormData(initialFormState)

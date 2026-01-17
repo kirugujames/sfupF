@@ -7,17 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import {
     Briefcase,
-    MapPin,
     FileText,
-    Clock,
 } from "lucide-react"
 import api from "@/lib/axios"
 import { toast } from "react-hot-toast"
@@ -33,9 +24,7 @@ export default function AddJob({ onSuccess, initialData, mode = "add" }: AddJobP
     const isEdit = mode === "edit"
 
     const [formData, setFormData] = useState({
-        job_title: initialData?.title || "",
-        type: initialData?.type || "Full-time",
-        location: initialData?.location || "",
+        job_title: initialData?.job_title || initialData?.title || "",
         description: initialData?.description || "",
     })
 
@@ -44,9 +33,7 @@ export default function AddJob({ onSuccess, initialData, mode = "add" }: AddJobP
     useEffect(() => {
         if (initialData) {
             setFormData({
-                job_title: initialData.title || "",
-                type: initialData.type || "Full-time",
-                location: initialData.location || "",
+                job_title: initialData.job_title || initialData.title || "",
                 description: initialData.description || "",
             })
         }
@@ -59,12 +46,8 @@ export default function AddJob({ onSuccess, initialData, mode = "add" }: AddJobP
         setFormData({ ...formData, [name]: value })
     }
 
-    const handleSelectChange = (value: string) => {
-        setFormData({ ...formData, type: value })
-    }
-
     const handleSubmit = async () => {
-        if (!formData.job_title || !formData.type || !formData.description) {
+        if (!formData.job_title || !formData.description) {
             toast.error("Please fill in all required fields")
             return
         }
@@ -72,14 +55,26 @@ export default function AddJob({ onSuccess, initialData, mode = "add" }: AddJobP
         try {
             setSubmitting(true)
 
-            let response;
-            if (isEdit) {
-                response = await api.put(`/api/jobs/update/${initialData.id}`, formData)
-            } else {
-                response = await api.post("/api/jobs/add", formData)
+            const payload: any = {
+                job_title: formData.job_title,
+                description: formData.description,
             }
 
-            if (response.data?.statusCode === 200 || response.data?.statusCode === 201) {
+            let response;
+            if (isEdit) {
+                payload.id = initialData.id
+                payload.status = initialData.status || "active"
+                response = await api.patch("/api/jobs/update", payload)
+            } else {
+                response = await api.post("/api/jobs/add", payload)
+            }
+
+            if (
+                response.data?.message === "Job created successfully" ||
+                response.data?.message === "Job updated successfully" ||
+                response.data?.statusCode === 200 ||
+                response.data?.statusCode === 201
+            ) {
                 toast.success(response.data.message || (isEdit ? "Job updated" : "Job posted"))
                 onSuccess?.()
             } else {
@@ -119,45 +114,6 @@ export default function AddJob({ onSuccess, initialData, mode = "add" }: AddJobP
                     />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label className="flex items-center gap-2">
-                            <Clock className="h-4 w-4" />
-                            Job Type
-                        </Label>
-                        <Select
-                            value={formData.type}
-                            onValueChange={handleSelectChange}
-                            disabled={isView}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Full-time">Full-time</SelectItem>
-                                <SelectItem value="Part-time">Part-time</SelectItem>
-                                <SelectItem value="Contract">Contract</SelectItem>
-                                <SelectItem value="Internship">Internship</SelectItem>
-                                <SelectItem value="Freelance">Freelance</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            Location
-                        </Label>
-                        <Input
-                            name="location"
-                            value={formData.location}
-                            onChange={handleChange}
-                            readOnly={isView}
-                            placeholder="e.g. Remote, Nairobi, etc."
-                        />
-                    </div>
-                </div>
-
                 <div className="space-y-2">
                     <Label className="flex items-center gap-2">
                         <FileText className="h-4 w-4" />
@@ -168,7 +124,7 @@ export default function AddJob({ onSuccess, initialData, mode = "add" }: AddJobP
                         value={formData.description}
                         onChange={handleChange}
                         readOnly={isView}
-                        className="min-h-[200px]"
+                        className="min-h-[250px]"
                         placeholder="Describe the roles, responsibilities, and requirements..."
                     />
                 </div>
@@ -180,9 +136,7 @@ export default function AddJob({ onSuccess, initialData, mode = "add" }: AddJobP
                                 variant="outline"
                                 onClick={() => {
                                     setFormData({
-                                        job_title: initialData?.title || "",
-                                        type: initialData?.type || "Full-time",
-                                        location: initialData?.location || "",
+                                        job_title: initialData?.job_title || initialData?.title || "",
                                         description: initialData?.description || "",
                                     })
                                 }}

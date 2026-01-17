@@ -72,22 +72,27 @@ export default function AddNewBlog({ onSuccess, initialData, mode = "add" }: Add
 
     try {
       setIsSubmitting(true)
-      const blogData = {
+      const blogData: any = {
         title,
         category,
         content,
         image,
-        isMain: isMain ? "Y" : "N"
+        is_main: isMain ? "Y" : "N"
       }
 
       let response;
       if (isEdit) {
-        response = await api.put(`/api/blog/update/${initialData.id}`, blogData)
+        blogData.id = initialData.id
+        response = await api.patch("/api/blog/update", blogData)
       } else {
         response = await api.post("/api/blog/add", blogData)
       }
 
-      if (response.data?.statusCode === 200 || response.data?.statusCode === 201) {
+      if (
+        response.data?.message === "Blog updated successfully" ||
+        response.data?.statusCode === 200 ||
+        response.data?.statusCode === 201
+      ) {
         toast.success(response.data?.message || (isEdit ? "Blog updated" : "Blog published"))
         if (!isEdit) {
           setTitle("")
