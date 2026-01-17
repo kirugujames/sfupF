@@ -30,8 +30,12 @@ import {
   Eye,
   Pencil,
   Trash2,
+  Plus,
 } from "lucide-react"
 import api from "@/lib/axios"
+import { toast } from "react-hot-toast"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import AddJob from "./add-job"
 
 type Job = {
   id: number
@@ -51,26 +55,42 @@ export function JobsTable() {
   const [sortField, setSortField] = useState<SortField>(null)
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc")
   const [currentPage, setCurrentPage] = useState(1)
-
   const itemsPerPage = 10
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const res = await api.get("/api/jobs/get-all")
-        const jobsArray = Array.isArray(res.data)
-          ? res.data
-          : Array.isArray(res.data?.data)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null)
+
+  const fetchJobs = async () => {
+    try {
+      setLoading(true)
+      const res = await api.get("/api/jobs/get-all")
+      const backendJobs = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data?.data)
           ? res.data.data
           : []
-        setData(jobsArray)
-      } catch (err) {
-        console.error(err)
-        setError("Failed to load jobs")
-      } finally {
-        setLoading(false)
-      }
+
+      const formattedJobs: Job[] = backendJobs.map((job: any) => ({
+        id: job.id,
+        title: job.job_title || job.title || "Untitled Job",
+        type: job.type || "Full-time",
+        location: job.location || "",
+        description: job.description || "",
+        postedDate: job.created_at || job.postedDate || new Date().toISOString(),
+      }))
+
+      setData(formattedJobs)
+    } catch (err) {
+      console.error(err)
+      setError("Failed to load jobs")
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     fetchJobs()
   }, [])
 
@@ -110,8 +130,8 @@ export function JobsTable() {
             ? 1
             : -1
           : aVal < bVal
-          ? 1
-          : -1
+            ? 1
+            : -1
       })
     }
 
@@ -123,6 +143,38 @@ export function JobsTable() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   )
+
+  const handleJobSuccess = () => {
+    setIsAddDialogOpen(false)
+    setIsEditDialogOpen(false)
+    fetchJobs()
+  }
+
+  const handleView = (job: Job) => {
+    setSelectedJob(job)
+    setIsViewDialogOpen(true)
+  }
+
+  const handleEdit = (job: Job) => {
+    setSelectedJob(job)
+    setIsEditDialogOpen(true)
+  }
+
+  const handleDelete = async (job: Job) => {
+    if (window.confirm(`Are you sure you want to delete "${job.title}"?`)) {
+      try {
+        const response = await api.delete(`/api/jobs/delete/${job.id}`)
+        if (response.data?.statusCode === 200) {
+          toast.success(response.data.message)
+          fetchJobs()
+        } else {
+          toast.error(response.data.message || "Delete failed")
+        }
+      } catch (err) {
+        toast.error("An error occurred while deleting")
+      }
+    }
+  }
 
   if (loading) {
     return (
@@ -174,11 +226,42 @@ export function JobsTable() {
           <Badge variant="secondary" className="h-9 px-3">
             {filteredAndSortedData.length} jobs
           </Badge>
-          <Button size="sm" onClick={() => alert("Open create job dialog")}>
-            + New Job
+          <Button size="sm" onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Job
           </Button>
         </div>
       </div>
+
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <AddJob onSuccess={handleJobSuccess} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          {selectedJob && (
+            <AddJob
+              mode="view"
+              initialData={selectedJob}
+              onSuccess={() => setIsViewDialogOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          {selectedJob && (
+            <AddJob
+              mode="edit"
+              initialData={selectedJob}
+              onSuccess={handleJobSuccess}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Table */}
       <div className="rounded-lg border bg-card overflow-auto">
@@ -268,16 +351,19 @@ export function JobsTable() {
 
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleView(job)}>
                           <Eye className="mr-2 h-4 w-4" />
                           View
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEdit(job)}>
                           <Pencil className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:text-destructive">
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => handleDelete(job)}
+                        >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete
                         </DropdownMenuItem>

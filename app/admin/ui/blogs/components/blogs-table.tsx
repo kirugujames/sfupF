@@ -42,6 +42,9 @@ export function BlogsTable() {
 
   // Dialog states
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null)
 
   // Fetch blogs
   const fetchBlogs = async () => {
@@ -105,6 +108,29 @@ export function BlogsTable() {
 
   const totalPages = Math.ceil(filteredAndSortedData.length / itemsPerPage)
   const paginatedData = filteredAndSortedData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
+  const handleView = (blog: Blog) => {
+    setSelectedBlog(blog)
+    setIsViewDialogOpen(true)
+  }
+
+  const handleEdit = (blog: Blog) => {
+    setSelectedBlog(blog)
+    setIsEditDialogOpen(true)
+  }
+
+  const handleDelete = async (blog: Blog) => {
+    if (window.confirm(`Are you sure you want to delete "${blog.title}"?`)) {
+      try {
+        const response = await api.delete(`/api/blog/delete/${blog.id}`)
+        if (response.data?.statusCode === 200) {
+          fetchBlogs()
+        }
+      } catch (error) {
+        console.error("Delete failed", error)
+      }
+    }
+  }
 
   if (loading) {
     return (
@@ -170,6 +196,33 @@ export function BlogsTable() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          {selectedBlog && (
+            <AddNewBlog
+              mode="view"
+              initialData={selectedBlog}
+              onSuccess={() => setIsViewDialogOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          {selectedBlog && (
+            <AddNewBlog
+              mode="edit"
+              initialData={selectedBlog}
+              onSuccess={() => {
+                setIsEditDialogOpen(false)
+                fetchBlogs()
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Blog Table */}
       <div className="rounded-lg border bg-card overflow-auto">
         <Table>
@@ -228,16 +281,19 @@ export function BlogsTable() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => alert("View blog")}>
+                        <DropdownMenuItem onClick={() => handleView(blog)}>
                           <Eye className="mr-2 h-4 w-4" />
                           View
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => alert("Edit blog")}>
+                        <DropdownMenuItem onClick={() => handleEdit(blog)}>
                           <Pencil className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:text-destructive">
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => handleDelete(blog)}
+                        >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete
                         </DropdownMenuItem>

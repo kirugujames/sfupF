@@ -18,6 +18,7 @@ import {
 import { ArrowUpDown, ChevronLeft, ChevronRight, Search, MoreHorizontal, Eye, Pencil, Trash2 } from "lucide-react"
 import api from "@/lib/axios"
 import AddNewEvent from "./add-event"
+import { toast } from "react-hot-toast"
 
 type Event = {
   id: number
@@ -46,6 +47,9 @@ export function EventsTable() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
   const [openAddEvent, setOpenAddEvent] = useState(false)
+  const [openViewEvent, setOpenViewEvent] = useState(false)
+  const [openEditEvent, setOpenEditEvent] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
 
   const fetchEvents = async () => {
     try {
@@ -126,7 +130,34 @@ export function EventsTable() {
 
   const handleEventSuccess = () => {
     setOpenAddEvent(false)
+    setOpenEditEvent(false)
     fetchEvents()
+  }
+
+  const handleView = (event: Event) => {
+    setSelectedEvent(event)
+    setOpenViewEvent(true)
+  }
+
+  const handleEdit = (event: Event) => {
+    setSelectedEvent(event)
+    setOpenEditEvent(true)
+  }
+
+  const handleDelete = async (event: Event) => {
+    if (window.confirm(`Are you sure you want to delete "${event.title}"?`)) {
+      try {
+        const response = await api.delete(`/api/events/delete/${event.id}`)
+        if (response.data?.statusCode === 200) {
+          toast.success(response.data.message)
+          fetchEvents()
+        } else {
+          toast.error(response.data.message || "Delete failed")
+        }
+      } catch (err) {
+        toast.error("An error occurred while deleting")
+      }
+    }
   }
 
   if (loading) {
@@ -275,18 +306,18 @@ export function EventsTable() {
                         <DropdownMenuItem onClick={() => handleMarkMain(event)}>
                           {event.is_main ? "Unmark as Main" : "Mark as Main"}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => alert("View details " + event.title)}>
+                        <DropdownMenuItem onClick={() => handleView(event)}>
                           <Eye className="mr-2 h-4 w-4" />
                           View
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => alert("Edit event " + event.title)}>
+                        <DropdownMenuItem onClick={() => handleEdit(event)}>
                           <Pencil className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-destructive focus:text-destructive"
-                          onClick={() => alert("Delete event " + event.title)}
+                          onClick={() => handleDelete(event)}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete
@@ -303,6 +334,7 @@ export function EventsTable() {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
+          {/* ... existing pagination ... */}
           <p className="text-sm text-muted-foreground">
             Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
             {Math.min(currentPage * itemsPerPage, filteredAndSortedData.length)} of {filteredAndSortedData.length}{" "}
@@ -355,6 +387,32 @@ export function EventsTable() {
           </div>
         </div>
       )}
+
+      {/* View Event Dialog */}
+      <Dialog open={openViewEvent} onOpenChange={setOpenViewEvent}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          {selectedEvent && (
+            <AddNewEvent
+              mode="view"
+              initialData={selectedEvent}
+              onSuccess={() => setOpenViewEvent(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Event Dialog */}
+      <Dialog open={openEditEvent} onOpenChange={setOpenEditEvent}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          {selectedEvent && (
+            <AddNewEvent
+              mode="edit"
+              initialData={selectedEvent}
+              onSuccess={handleEventSuccess}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
